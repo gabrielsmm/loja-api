@@ -16,7 +16,12 @@ public class TestConfig {
 
     @Bean
     void instanciaBaseDeDados() {
-        this.dbService.instanciaBaseDeDados();
+        try {
+			this.dbService.instanciaBaseDeDados();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 	
 }
