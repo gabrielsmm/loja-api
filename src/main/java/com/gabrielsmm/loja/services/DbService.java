@@ -12,6 +12,7 @@ import com.gabrielsmm.loja.domain.Cidade;
 import com.gabrielsmm.loja.domain.Cliente;
 import com.gabrielsmm.loja.domain.Endereco;
 import com.gabrielsmm.loja.domain.Estado;
+import com.gabrielsmm.loja.domain.ItemPedido;
 import com.gabrielsmm.loja.domain.Pagamento;
 import com.gabrielsmm.loja.domain.PagamentoComBoleto;
 import com.gabrielsmm.loja.domain.PagamentoComCartao;
@@ -24,6 +25,7 @@ import com.gabrielsmm.loja.repositories.CidadeRepository;
 import com.gabrielsmm.loja.repositories.ClienteRepository;
 import com.gabrielsmm.loja.repositories.EnderecoRepository;
 import com.gabrielsmm.loja.repositories.EstadoRepository;
+import com.gabrielsmm.loja.repositories.ItemPedidoRepository;
 import com.gabrielsmm.loja.repositories.PagamentoRepository;
 import com.gabrielsmm.loja.repositories.PedidoRepository;
 import com.gabrielsmm.loja.repositories.ProdutoRepository;
@@ -54,6 +56,9 @@ public class DbService {
 	
 	@Autowired
 	private PagamentoRepository pagamentoRepository;
+	
+	@Autowired
+	private ItemPedidoRepository itemPedidoRepository;
 	
 	public void instanciaBaseDeDados() throws ParseException {
 		Categoria cat1 = new Categoria(null, "Informática");
@@ -113,6 +118,19 @@ public class DbService {
 		
 		pedidoRepository.saveAll(Arrays.asList(ped1, ped2));
 		pagamentoRepository.saveAll(Arrays.asList(pagto1, pagto2));
+		
+		ItemPedido ip1 = new ItemPedido(ped1, p1, 0.0, 1, 2000.00);
+		ItemPedido ip2 = new ItemPedido(ped1, p3, 0.0, 2, 80.00);
+		ItemPedido ip3 = new ItemPedido(ped2, p2, 100.0, 1, 800.00);
+		
+		ped1.getItens().addAll(Arrays.asList(ip1, ip2));
+		ped2.getItens().addAll(Arrays.asList(ip3));
+		
+		p1.getItens().addAll(Arrays.asList(ip1));
+		p2.getItens().addAll(Arrays.asList(ip3));
+		p3.getItens().addAll(Arrays.asList(ip2));
+		
+		itemPedidoRepository.saveAll(Arrays.asList(ip1, ip2, ip3));
 	}
 	
 }
