@@ -3,8 +3,12 @@ package com.gabrielsmm.loja.services.validation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.gabrielsmm.loja.domain.Cliente;
 import com.gabrielsmm.loja.domain.enums.TipoCliente;
 import com.gabrielsmm.loja.dto.ClienteNewDTO;
+import com.gabrielsmm.loja.repositories.ClienteRepository;
 import com.gabrielsmm.loja.resources.exceptions.FieldMessage;
 import com.gabrielsmm.loja.services.validation.utils.BR;
 
@@ -12,6 +16,10 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 public class ClienteInsertValidator implements ConstraintValidator<ClienteInsert, ClienteNewDTO> {
+	
+	@Autowired
+	private ClienteRepository repo;
+	
 	@Override
 	public void initialize(ClienteInsert ann) {
 	}
@@ -26,6 +34,11 @@ public class ClienteInsertValidator implements ConstraintValidator<ClienteInsert
 		
 		if (objDto.getTipo().equals(TipoCliente.PESSOAJURIDICA.getCodigo()) && !BR.isValidCNPJ(objDto.getCpfOuCnpj())) {
 			list.add(new FieldMessage("cpfOuCnpj", "CNPJ inválido"));
+		}
+		
+		Cliente aux = repo.findByEmail(objDto.getEmail());
+		if (aux != null) {
+			list.add(new FieldMessage("email", "Email já existente"));
 		}
 
 		for (FieldMessage e : list) {
