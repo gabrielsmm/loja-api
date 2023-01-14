@@ -12,7 +12,7 @@ import com.gabrielsmm.loja.domain.PagamentoComCartao;
 public class JacksonConfig {
 	// https://stackoverflow.com/questions/41452598/overcome-can-not-construct-instance-ofinterfaceclass-without-hinting-the-pare
 	@Bean
-	public Jackson2ObjectMapperBuilder objectMapperBuilder() {
+	Jackson2ObjectMapperBuilder objectMapperBuilder() {
 		Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder() {
 			public void configure(ObjectMapper objectMapper) {
 				objectMapper.registerSubtypes(PagamentoComCartao.class);
