@@ -7,27 +7,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.gabrielsmm.loja.security.JWTAuthenticationFilter;
+import com.gabrielsmm.loja.security.JWTUtil;
+
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig { 
 	
 	@Autowired
-	private UserDetailsService userDetailsService;
-
-//	private static final String[] PUBLIC_MATCHERS = {
-//			"/h2-console/**"
-//	};
+	private JWTUtil jwtUtil;
 	
 	private static final String[] PUBLIC_MATCHERS_GET = {
 			"/produtos/**",
@@ -35,8 +34,7 @@ public class SecurityConfig {
 	};
 	
 	@Bean
-	SecurityFilterChain springWebFilterChain(HttpSecurity http, AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
+	SecurityFilterChain springWebFilterChain(HttpSecurity http) throws Exception {
 		return http.cors().and().csrf().disable()
 				.headers().frameOptions().sameOrigin().and()
 				.sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -44,6 +42,7 @@ public class SecurityConfig {
 				.requestMatchers(toH2Console()).permitAll()		
 				.requestMatchers(HttpMethod.GET, PUBLIC_MATCHERS_GET).permitAll()
 				.anyRequest().authenticated())
+				.addFilter(new JWTAuthenticationFilter(authenticationManager(http.getSharedObject(AuthenticationConfiguration.class)), jwtUtil))
 				.build();
 	}
 	
@@ -55,6 +54,11 @@ public class SecurityConfig {
 		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
+	}
+	
+	@Bean 
+	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+		return authenticationConfiguration.getAuthenticationManager();
 	}
 	
 	@Bean
