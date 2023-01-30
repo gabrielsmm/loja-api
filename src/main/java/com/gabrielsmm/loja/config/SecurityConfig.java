@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -19,11 +20,15 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.gabrielsmm.loja.security.JWTAuthenticationFilter;
+import com.gabrielsmm.loja.security.JWTAuthorizationFilter;
 import com.gabrielsmm.loja.security.JWTUtil;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig { 
+	
+	@Autowired
+	private UserDetailsService userDetailsService;
 	
 	@Autowired
 	private JWTUtil jwtUtil;
@@ -43,6 +48,7 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, PUBLIC_MATCHERS_GET).permitAll()
 				.anyRequest().authenticated())
 				.addFilter(new JWTAuthenticationFilter(authenticationManager(http.getSharedObject(AuthenticationConfiguration.class)), jwtUtil))
+				.addFilter(new JWTAuthorizationFilter(authenticationManager(http.getSharedObject(AuthenticationConfiguration.class)), jwtUtil, userDetailsService))
 				.build();
 	}
 	
